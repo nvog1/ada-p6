@@ -17,24 +17,39 @@ int maze_naive(const vector<vector<int>> &maze, int posx, int posy){
   if(maze[posy][posx] == 0) return KMAXINT;
   if(posx == 0 && posy == 0) return 1;
   else{
-    if(posx == 0 && posy > 0){
-      return 1 + maze_naive(maze,posx,posy-1);
+    int S1, S2, S3;
+    S1 = S2 = S3 = KMAXINT;
+    if(posy > 0){
+      S1 = 1 + maze_naive(maze,posx,posy-1);
     }
-    else if(posx > 0 && posy == 0){
-      return 1 + maze_naive(maze,posx-1,posy);
+    if(posx > 0){
+      S2 = 1 + maze_naive(maze,posx-1,posy);
     }
-    else{
-      return 1 + std::min(std::min(maze_naive(maze,posx-1,posy-1), maze_naive(maze,posx,posy-1)), maze_naive(maze,posx-1,posy));
+    if(posx > 0 && posy > 0){
+      S3 = 1 + maze_naive(maze,posx-1,posy-1);
     }
+
+    return std::min(std::min(S1,S2),S3);
   }
 }
 
 int maze_memo(const vector<vector<int>> maze, int posx, int posy, vector<vector<int>> &memo_table){
-  if(memo_table[posy][posx] != SENTINEL) return memo_table[posy][posx];
-  if(maze[posy][posx] == 0) return memo_table[posy][pox] = KMAXINT;
-  if(posx == 0 && posy == 0) return memo_table[posy][posx] = 1;
+  if(memo_table[posy][posx] != SENTINEL) return memo_table[posy][posx];//ya estaba calculado
+  if(maze[posy][posx] == 0) return memo_table[posy][posx] = KMAXINT;//caso base 1
+  if(posx == 0 && posy == 0) return memo_table[posy][posx] = 1;//caso base 2
   else{
-    return memo_table[posy][posx] = maze_naive(maze,posx,posy);
+    int S1, S2, S3;
+    S1 = S2 = S3 = KMAXINT;
+    if(posy > 0){
+      S1 = 1 + maze_memo(maze,posx, posy-1, memo_table);
+    }
+    if(posx > 0){
+      S2 = 1 + maze_memo(maze,posx-1, posy, memo_table);
+    }
+    if(posx > 0 && posy > 0){
+      S3 = 1 + maze_memo(maze,posx-1, posy-1, memo_table);
+    }
+    return memo_table[posy][posx] = std::min(std::min(S1,S2),S3);
   }
 }
 
@@ -48,6 +63,20 @@ int maze_it_vector(){
 
 void maze_parser(vector<vector<int>> &path_solu, const vector<vector<int>> &memo_table){
 
+}
+
+void print_matrix(vector<vector<int>> matrix, int rows, int cols, bool blanks){
+  for(int i=0;i<rows;i++){
+    for(int j=0;j<cols;j++){
+      if(matrix[i][j] >= KMAXINT) cout << "X";
+      else if(matrix[i][j] == -1) cout << "-";
+      else{
+        cout << matrix[i][j];
+      }
+      if(blanks) cout << " ";
+    }
+    cout << endl;
+  }
 }
 
 int main(int argc, char *argv[]){
@@ -156,20 +185,17 @@ int main(int argc, char *argv[]){
   cout << endl;
 
   if(path){
-    /*for(int i=0;i<rows;i++){
-      for(int j=0;j<cols;j++)
-        cout << path_solu[i][j];
-      cout << endl;
-    }
-    cout << endl;*/
+    //print_matrix(path_solu,rows,cols,false);
     cout << "?" << endl;
   }
 
   if(tables){
     cout << "Memoization table:" << endl;
-    cout << "?" << endl;
+    print_matrix(memo_table,rows,cols,true);
+
     cout << "Iterative table:" << endl;
-    cout << "?" << endl;
+    //print_matrix(it_table,rows,cols,true);
+    cout << "?" << endl << endl;
   }
 
   return 0;
