@@ -29,8 +29,13 @@ int maze_naive(const vector<vector<int>> &maze, int posx, int posy){
   }
 }
 
-int maze_memo(const vector<vector<int>> &memo_table){
-  return -1;
+int maze_memo(const vector<vector<int>> maze, int posx, int posy, vector<vector<int>> &memo_table){
+  if(memo_table[posy][posx] != SENTINEL) return memo_table[posy][posx];
+  if(maze[posy][posx] == 0) return memo_table[posy][pox] = KMAXINT;
+  if(posx == 0 && posy == 0) return memo_table[posy][posx] = 1;
+  else{
+    return memo_table[posy][posx] = maze_naive(maze,posx,posy);
+  }
 }
 
 int maze_it_matrix(const vector<vector<int>> &it_table){
@@ -117,16 +122,16 @@ int main(int argc, char *argv[]){
 
   if(!ignore_naive){
     naive = maze_naive(maze, cols-1, rows-1);
-    if(naive > maxPathValue || naive < 0) naive = 0;
+    if(naive > maxPathValue) naive = 0;
   }
-  int memo = maze_memo(memo_table);
-  if(memo > maxPathValue || memo<0) memo = 0;
+  int memo = maze_memo(maze, cols-1, rows-1, memo_table);
+  if(memo > maxPathValue) memo = 0;
 
   int it_m = maze_it_matrix(it_table);
-  if(it_m > maxPathValue  || it_m < 0) it_m = 0;
+  if(it_m > maxPathValue) it_m = 0;
 
   int it_v = maze_it_vector();
-  if(it_v > maxPathValue || it_v < 0) it_v = 0;
+  if(it_v > maxPathValue) it_v = 0;
 
   if(path){
     maze_parser(path_solu, memo_table);
@@ -139,22 +144,14 @@ int main(int argc, char *argv[]){
   }
   else cout << "- ";
 
-  /*
   if(memo>=0) cout << memo << " ";
   else cout << "? ";
-  */
   
-  /*
   if(it_m>=0) cout << it_m << " ";
   else cout << "? ";
-  */
 
-  /*
   if(it_v>=0) cout << it_v << " ";
   else cout << "? ";
-  */
-
-  cout << "? ? ?";
 
   cout << endl;
 
