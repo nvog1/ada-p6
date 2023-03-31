@@ -7,13 +7,26 @@
 using namespace std;
 
 const int SENTINEL = -1;
+const int KMAXINT = std::numeric_limits<int>::max() - 10000000;//para que no de overflow al sumar 1
 
 void show_usage(){
   cerr << "Usage:" << endl << "maze [-p] [-t] [--ignore-naive] -f file" << endl;
 }
 
-int maze_naive(){
-  return -1;
+int maze_naive(const vector<vector<int>> &maze, int posx, int posy){
+  if(maze[posy][posx] == 0) return KMAXINT;
+  if(posx == 0 && posy == 0) return 1;
+  else{
+    if(posx == 0 && posy > 0){
+      return 1 + maze_naive(maze,posx,posy-1);
+    }
+    else if(posx > 0 && posy == 0){
+      return 1 + maze_naive(maze,posx-1,posy);
+    }
+    else{
+      return 1 + std::min(std::min(maze_naive(maze,posx-1,posy-1), maze_naive(maze,posx,posy-1)), maze_naive(maze,posx-1,posy));
+    }
+  }
 }
 
 int maze_memo(const vector<vector<int>> &memo_table){
@@ -100,13 +113,21 @@ int main(int argc, char *argv[]){
       memo_table[i][j] = SENTINEL;
 
   vector<vector<int>> it_table(memo_table);
+  int maxPathValue = rows*cols;
 
   if(!ignore_naive){
-    naive = maze_naive();
+    naive = maze_naive(maze, cols-1, rows-1);
+    if(naive > maxPathValue || naive < 0) naive = 0;
   }
   int memo = maze_memo(memo_table);
+  if(memo > maxPathValue || memo<0) memo = 0;
+
   int it_m = maze_it_matrix(it_table);
+  if(it_m > maxPathValue  || it_m < 0) it_m = 0;
+
   int it_v = maze_it_vector();
+  if(it_v > maxPathValue || it_v < 0) it_v = 0;
+
   if(path){
     maze_parser(path_solu, memo_table);
   }
@@ -118,14 +139,22 @@ int main(int argc, char *argv[]){
   }
   else cout << "- ";
 
+  /*
   if(memo>=0) cout << memo << " ";
   else cout << "? ";
+  */
   
+  /*
   if(it_m>=0) cout << it_m << " ";
   else cout << "? ";
+  */
 
+  /*
   if(it_v>=0) cout << it_v << " ";
   else cout << "? ";
+  */
+
+  cout << "? ? ?";
 
   cout << endl;
 
