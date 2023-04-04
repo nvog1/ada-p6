@@ -33,7 +33,7 @@ int maze_naive(const vector<vector<int>> &maze, int posx, int posy){
   }
 }
 
-int maze_memo(const vector<vector<int>> maze, int posx, int posy, vector<vector<int>> &memo_table){
+int maze_memo(const vector<vector<int>> &maze, int posx, int posy, vector<vector<int>> &memo_table){
   if(memo_table[posy][posx] != SENTINEL) return memo_table[posy][posx];//ya estaba calculado
   if(maze[posy][posx] == 0) return memo_table[posy][posx] = KMAXINT;//caso base 1
   if(posx == 0 && posy == 0) return memo_table[posy][posx] = 1;//caso base 2
@@ -53,8 +53,34 @@ int maze_memo(const vector<vector<int>> maze, int posx, int posy, vector<vector<
   }
 }
 
-int maze_it_matrix(const vector<vector<int>> &it_table){
-  return -1;
+int maze_it_matrix(const vector<vector<int>> &maze, vector<vector<int>> &it_table){
+  for(long unsigned int posy=0;posy<it_table.size();posy++){
+    for(long unsigned int posx=0;posx<it_table[posy].size();posx++){
+      if(maze[posy][posx] == 0){
+        it_table[posy][posx] = KMAXINT;//caso base 1
+        continue;
+      }
+      if(posx == 0 && posy == 0){
+        it_table[posy][posx] = 1;//caso base 2
+        continue;
+      }
+      else{
+        int S1, S2, S3;
+        S1 = S2 = S3 = KMAXINT;
+        if(posy > 0){
+        S1 = 1 + it_table[posy-1][posx];
+        }
+        if(posx > 0){
+          S2 = 1 + it_table[posy][posx-1]; 
+        }
+        if(posx > 0 && posy > 0){
+          S3 = 1 + it_table[posy-1][posx-1];
+        }
+        it_table[posy][posx] = std::min(std::min(S1,S2),S3);
+      }
+    }
+  }
+  return it_table[it_table.size()-1][it_table[0].size()-1];//el valor de la ultima casilla
 }
 
 int maze_it_vector(){
@@ -156,14 +182,14 @@ int main(int argc, char *argv[]){
   int memo = maze_memo(maze, cols-1, rows-1, memo_table);
   if(memo > maxPathValue) memo = 0;
 
-  int it_m = maze_it_matrix(it_table);
+  int it_m = maze_it_matrix(maze, it_table);
   if(it_m > maxPathValue) it_m = 0;
 
   int it_v = maze_it_vector();
   if(it_v > maxPathValue) it_v = 0;
 
   if(path){
-    maze_parser(path_solu, memo_table);
+    if(memo != 0) maze_parser(path_solu, memo_table);
   }
 
   //salida
@@ -185,7 +211,9 @@ int main(int argc, char *argv[]){
   cout << endl;
 
   if(path){
-    //print_matrix(path_solu,rows,cols,false);
+    //if(memo==0) cout << "NO EXIT" << endl;
+    //else
+      //print_matrix(path_solu,rows,cols,false);
     cout << "?" << endl;
   }
 
@@ -194,8 +222,7 @@ int main(int argc, char *argv[]){
     print_matrix(memo_table,rows,cols,true);
 
     cout << "Iterative table:" << endl;
-    //print_matrix(it_table,rows,cols,true);
-    cout << "?" << endl << endl;
+    print_matrix(it_table,rows,cols,true);
   }
 
   return 0;
