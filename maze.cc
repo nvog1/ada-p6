@@ -83,8 +83,39 @@ int maze_it_matrix(const vector<vector<int>> &maze, vector<vector<int>> &it_tabl
   return it_table[it_table.size()-1][it_table[0].size()-1];//el valor de la ultima casilla
 }
 
-int maze_it_vector(){
-  return -1;
+int maze_it_vector(const vector<vector<int>> &maze){
+  vector<int> v0(maze[0].size(),-1);
+  vector<int> v1(maze[0].size(),-1);
+
+  for(long unsigned int posy=0;posy<maze.size();posy++){
+    for(long unsigned int posx=0;posx<maze[posy].size();posx++){
+      if(maze[posy][posx] == 0){
+        v1[posx] = KMAXINT;//caso base 1
+        continue;
+      }
+      if(posx == 0 && posy == 0){
+        v1[posx] = 1;//caso base 2
+        continue;
+      }
+      else{
+        int S1, S2, S3;
+        S1 = S2 = S3 = KMAXINT;
+        if(posy > 0){
+        S1 = 1 + v0[posx];
+        }
+        if(posx > 0){
+          S2 = 1 + v1[posx-1]; 
+        }
+        if(posx > 0 && posy > 0){
+          S3 = 1 + v0[posx-1];
+        }
+        v1[posx] = std::min(std::min(S1,S2),S3);
+      }
+    }
+    swap(v0,v1);
+  }
+  return v0[maze[0].size()-1];//el valor de la ultima casilla
+  
 }
 
 void maze_parser(vector<vector<int>> &path_solu, const vector<vector<int>> &memo_table){
@@ -185,7 +216,7 @@ int main(int argc, char *argv[]){
   int it_m = maze_it_matrix(maze, it_table);
   if(it_m > maxPathValue) it_m = 0;
 
-  int it_v = maze_it_vector();
+  int it_v = maze_it_vector(maze);
   if(it_v > maxPathValue) it_v = 0;
 
   if(path){
