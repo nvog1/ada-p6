@@ -118,7 +118,39 @@ int maze_it_vector(const vector<vector<int>> &maze){
   
 }
 
-void maze_parser(vector<vector<int>> &path_solu, const vector<vector<int>> &memo_table){
+void maze_parser(vector<vector<char>> &path_solu, const vector<vector<int>> &it_table){
+  int posx,posy;
+  posx = path_solu[0].size()-1;
+  posy = path_solu.size()-1;
+  int S1, S2, S3;
+  while(posx>0 && posy>0){
+    S1 = S2 = S3 = KMAXINT;
+    if(posy > 0){
+    S1 = it_table[posy-1][posx];
+    }
+    if(posx > 0){
+    S2 = it_table[posy][posx-1]; 
+    }
+    if(posx > 0 && posy > 0){
+    S3 = it_table[posy-1][posx-1];
+    }
+    int min = std::min(std::min(S1,S2),S3);
+    if(min == S3){
+      path_solu[posy-1][posx-1] = '*';
+      posy--;
+      posx--;
+    }    
+    else if(min == S1){
+      path_solu[posy-1][posx] = '*';
+      posy--;
+    }    
+    else if(min == S2){
+      path_solu[posy][posx-1] = '*';
+      posx--;
+    }    
+
+  }
+  path_solu[0][0] = path_solu[path_solu.size()-1][path_solu[0].size()-1] = '*';
 
 }
 
@@ -197,11 +229,14 @@ int main(int argc, char *argv[]){
 
   //ejecucion algoritmos
   int naive = -1;
-  vector<vector<int>> path_solu(maze);
+  vector<vector<char>> path_solu(maze.size(),vector<char>(maze[0].size()));
+
   vector<vector<int>> memo_table(rows, vector<int>(cols));
   for(int i=0;i<rows;i++)
-    for(int j=0;j<cols;j++)
+    for(int j=0;j<cols;j++){
       memo_table[i][j] = SENTINEL;
+      path_solu[i][j] = (char)maze[i][j];
+    }
 
   vector<vector<int>> it_table(memo_table);
   int maxPathValue = rows*cols;
@@ -220,7 +255,7 @@ int main(int argc, char *argv[]){
   if(it_v > maxPathValue) it_v = 0;
 
   if(path){
-    if(memo != 0) maze_parser(path_solu, memo_table);
+    if(it_m != 0) maze_parser(path_solu, it_table);
   }
 
   //salida
@@ -242,10 +277,13 @@ int main(int argc, char *argv[]){
   cout << endl;
 
   if(path){
-    //if(memo==0) cout << "NO EXIT" << endl;
-    //else
-      //print_matrix(path_solu,rows,cols,false);
-    cout << "?" << endl;
+    if(it_m==0) cout << "NO EXIT" << endl;
+    else
+      for(unsigned long int i=0;i<path_solu.size();i++){
+        for(unsigned long int j=0;j<path_solu[i].size();j++)
+          cout << path_solu[i][j];
+        cout << endl;
+      }
   }
 
   if(tables){
