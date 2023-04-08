@@ -122,8 +122,9 @@ void maze_parser(vector<vector<char>> &path_solu, const vector<vector<int>> &it_
   int posx,posy;
   posx = path_solu[0].size()-1;
   posy = path_solu.size()-1;
+  path_solu[path_solu.size()-1][path_solu[0].size()-1] = '*';
   int S1, S2, S3;
-  while(posx>0 && posy>0){
+  while(posx>0 || posy>0){
     S1 = S2 = S3 = KMAXINT;
     if(posy > 0){
     S1 = it_table[posy-1][posx];
@@ -148,10 +149,7 @@ void maze_parser(vector<vector<char>> &path_solu, const vector<vector<int>> &it_
       path_solu[posy][posx-1] = '*';
       posx--;
     }    
-
   }
-  path_solu[0][0] = path_solu[path_solu.size()-1][path_solu[0].size()-1] = '*';
-
 }
 
 void print_matrix(vector<vector<int>> matrix, int rows, int cols, bool blanks){
@@ -163,6 +161,19 @@ void print_matrix(vector<vector<int>> matrix, int rows, int cols, bool blanks){
         cout << matrix[i][j];
       }
       if(blanks) cout << " ";
+    }
+    cout << endl;
+  }
+}
+
+void print_matrix(vector<vector<char>> matrix, int rows, int cols){
+  for(int i=0;i<rows;i++){
+    for(int j=0;j<cols;j++){
+      if(matrix[i][j] == '\000') cout << "0";
+      else if(matrix[i][j] == '\001') cout << "1";
+      else{
+        cout << matrix[i][j];
+      }
     }
     cout << endl;
   }
@@ -229,8 +240,8 @@ int main(int argc, char *argv[]){
 
   //ejecucion algoritmos
   int naive = -1;
-  vector<vector<char>> path_solu(maze.size(),vector<char>(maze[0].size()));
 
+  vector<vector<char>> path_solu(maze.size(),vector<char>(maze[0].size()));
   vector<vector<int>> memo_table(rows, vector<int>(cols));
   for(int i=0;i<rows;i++)
     for(int j=0;j<cols;j++){
@@ -279,11 +290,7 @@ int main(int argc, char *argv[]){
   if(path){
     if(it_m==0) cout << "NO EXIT" << endl;
     else
-      for(unsigned long int i=0;i<path_solu.size();i++){
-        for(unsigned long int j=0;j<path_solu[i].size();j++)
-          cout << path_solu[i][j];
-        cout << endl;
-      }
+      print_matrix(path_solu, path_solu.size(), path_solu[0].size());
   }
 
   if(tables){
